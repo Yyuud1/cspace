@@ -914,10 +914,9 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
   });
   updateRbaSummary();
 
-  // ===== Riwayat unduhan KYC (Supabase) =====
-  // Isi dua nilai ini dari Supabase: Project Settings > API (Project URL dan anon / publishable key).
-  const SUPABASE_URL = '';
-  const SUPABASE_KEY = '';
+ 
+  const SUPABASE_URL = 'https://qlhlslgjuusmumgdjfmz.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_YzL1B8w7DCdR6-m7oT61eA_MStXLNGV';
   const HISTORY_TABLE = 'kyc_history';
   const supabaseReady = () => /^https:\/\//.test(SUPABASE_URL) && SUPABASE_KEY.length > 20;
   function supabaseRequest(path, options = {}) {
