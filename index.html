@@ -986,6 +986,7 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
     if (!v.customer) return fail('Isi nama nasabah terlebih dahulu',rbaInputs.customer);
     if (!v.signerName) return fail('Pilih pejabat yang memutuskan',rbaInputs.signer);
     if (!v.signerTitle) return fail('Pilih jabatan yang memutuskan',rbaInputs.signerTitle);
+    if (!rbaInputs.cs.value) return fail('Pilih pelaksana CS terlebih dahulu',rbaInputs.cs);
     const button = $('rba-download');
     button.disabled = true;
     button.setAttribute('aria-busy','true');
