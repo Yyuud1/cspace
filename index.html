@@ -191,10 +191,24 @@ input[type=date]::-webkit-calendar-picker-indicator{opacity:.38;cursor:pointer}
 .history-list li:last-child{border-bottom:0}
 .history-name{flex:1 1 180px;min-width:0;font-size:14px;font-weight:500;overflow-wrap:anywhere}
 .history-time{font-size:13px;color:var(--muted);white-space:nowrap}
-.history-inputer{display:block;margin-top:3px;font-size:12px;font-weight:400;color:#6a7488}
+.history-inputer{display:block;margin-top:2px;font-size:10.5px;font-weight:400;color:#6a7488}
+.history-doc{display:inline-block;margin-right:6px;padding:0 6px;border-radius:99px;font-size:8.5px;font-weight:500;letter-spacing:.3px;line-height:1.6;vertical-align:1px}
+.history-doc.kyc{background:#eef1f7;color:#4f5a70}.history-doc.rba{background:#e8eeff;color:var(--blue-deep)}
 .history-empty{margin:18px 0;font-size:14px;color:var(--muted);text-align:center;line-height:1.7}
 .history-tools{position:sticky;top:0;background:#fff;padding:0 0 12px;z-index:1}
 .history-search{width:100%;height:44px;font-size:14px}
+.history-dates{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px;text-align:left}
+.history-dates label{display:block;font-size:12px;color:#5b6577}
+.history-dates input{display:block;width:100%;min-width:0;box-sizing:border-box;height:42px;margin-top:4px;font-size:14px}
+.history-bar{display:flex;align-items:center;justify-content:space-between;gap:8px 10px;flex-wrap:wrap;margin-top:12px}
+.history-chips{display:flex;gap:6px;flex-wrap:wrap}
+.history-chips button{height:36px;padding:0 12px;border:1px solid var(--line);background:#fff;border-radius:999px;font:inherit;font-size:12.5px;color:#5b6577;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.history-chips button:hover{border-color:var(--blue);color:var(--blue);background:var(--tint)}
+.history-pdf{height:40px;padding:0 16px;border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:9px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.history-pdf:hover:not(:disabled){background:var(--blue-deep)}.history-pdf:disabled{opacity:.7;cursor:default}
+.history-chips button:focus-visible,.history-pdf:focus-visible,.history-dates input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.history-note{margin:8px 0 0;min-height:0;font-size:12.5px;color:#5b6577}.history-note:empty{display:none}
+@media(max-height:760px){.history-tools{position:static}}
 .history-pager{position:sticky;bottom:0;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap;padding:14px 0 2px;border-top:1px solid var(--line);margin-top:6px;font-size:13px;color:var(--muted)}
 .history-pager[hidden]{display:none}
 .history-pager button{height:40px;flex:none;padding:0 12px;border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;transition:border-color .2s,background .2s}
@@ -981,7 +995,9 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
       if (!rbaAssets) rbaAssets = JSON.parse($('rba-assets').textContent);
       const doc = buildRbaPdf(v,rbaAssets);
       await doc.save('RBA-' + (v.customer.replace(/[\\/:*?"<>|]/g,'').trim() || v.cif) + '.pdf',{returnPromise:true});
-      notify('PDF RBA berhasil diunduh','success');
+      const saved = await saveHistory('rba',v.type,v.customer,rbaInputs.cs.value);
+      if (saved === 'fail') notify('PDF RBA terunduh, tetapi riwayat belum tersimpan','warning');
+      else notify('PDF RBA berhasil diunduh','success');
     } catch (_) {
       notify('PDF belum berhasil diunduh, silakan coba lagi','error');
     } finally {
@@ -1005,15 +1021,28 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
   }
   // Kolom "inputer" (pelaksana CS) di tabel kyc_history. Jika kolomnya belum ada di Supabase,
   // simpan dan baca riwayat tetap jalan tanpa kolom itu (lihat catatan SQL di panduan).
-  let historyHasInputer = true;
-  async function saveKycHistory(type, name, inputer) {
-    if (!supabaseReady()) return 'skip';
+  let historyHasInputer = true, historyHasDoc = true;
+  // Saat kolom belum dibuat di Supabase, kolom itu dilewati otomatis (error 400 menyebut nama kolomnya).
+  async function dropMissingColumns(response) {
+    const message = await response.clone().text();
+    let dropped = false;
+    if (historyHasInputer && /\binputer\b/.test(message)) { historyHasInputer = false; dropped = true; }
+    if (historyHasDoc && /\bdoc\b/.test(message)) { historyHasDoc = false; dropped = true; }
+    return dropped;
+  }
+  async function saveHistory(kind, type, name, inputer) {
+    if (!supabaseReady() || (kind === 'rba' && !historyHasDoc)) return 'skip';
     try {
-      const post = payload => supabaseRequest(HISTORY_TABLE,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)});
-      let response = await post(historyHasInputer ? {type,customer_name:name,inputer} : {type,customer_name:name});
-      if (!response.ok && response.status === 400 && historyHasInputer) {
-        historyHasInputer = false;
-        response = await post({type,customer_name:name});
+      const post = () => {
+        const payload = {type,customer_name:name};
+        if (historyHasInputer) payload.inputer = inputer || null;
+        if (historyHasDoc) payload.doc = kind;
+        return supabaseRequest(HISTORY_TABLE,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)});
+      };
+      let response = await post();
+      for (let attempt = 0; attempt < 2 && !response.ok && response.status === 400 && await dropMissingColumns(response); attempt++) {
+        if (kind === 'rba' && !historyHasDoc) return 'skip';
+        response = await post();
       }
       return response.ok ? 'ok' : 'fail';
     } catch (_) { return 'fail'; }
@@ -1022,33 +1051,104 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
     const parts = Object.fromEntries(new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(value)).map(p=>[p.type,p.value]));
     return parts.day + ' ' + parts.month + ' ' + parts.year + ', ' + parts.hour + ':' + parts.minute;
   }
+  function historyFilter(f) {
+    let q = '';
+    const clean = f.term.replace(/[,()]/g,' ');
+    if (f.term) q += f.inputer ? '&or=' + encodeURIComponent('(customer_name.ilike.*' + clean + '*,inputer.ilike.*' + clean + '*)') : '&customer_name=ilike.' + encodeURIComponent('*' + clean + '*');
+    if (f.from) q += '&created_at=gte.' + encodeURIComponent(f.from + 'T00:00:00+07:00');
+    if (f.to) q += '&created_at=lt.' + encodeURIComponent(dateAfter(f.to,1) + 'T00:00:00+07:00');
+    return q;
+  }
+  async function historyFetch(f, offset, limit) {
+    const run = () => supabaseRequest(HISTORY_TABLE + '?select=customer_name,' + (historyHasInputer ? 'inputer,' : '') + (historyHasDoc ? 'doc,' : '') + 'created_at&order=created_at.desc&limit=' + limit + '&offset=' + offset + historyFilter({...f,inputer:historyHasInputer}));
+    let response = await run();
+    for (let attempt = 0; attempt < 2 && !response.ok && response.status === 400 && await dropMissingColumns(response); attempt++) response = await run();
+    if (!response.ok) throw new Error(String(response.status));
+    return response.json();
+  }
+  function historyPeriod(from, to) {
+    const long = value => new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(parseDate(value));
+    if (from && to) return from === to ? long(from) : long(from) + ' - ' + long(to);
+    if (from) return 'Sejak ' + long(from);
+    if (to) return 'Sampai ' + long(to);
+    return 'Semua riwayat';
+  }
+  function buildHistoryPdf(rows, meta, logo, fonts) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    doc.addFileToVFS('Poppins-Regular.ttf',fonts.regular);
+    doc.addFont('Poppins-Regular.ttf','Poppins','normal');
+    doc.addFileToVFS('Poppins-SemiBold.ttf',fonts.semibold);
+    doc.addFont('Poppins-SemiBold.ttf','Poppins','bold');
+    doc.setProperties({title:'Riwayat Unduhan',subject:meta.period,author:'CSpace',creator:'CSpace'});
+    const ink = '#26334d', muted = '#7c8597', blue = '#365ee8', L = 22, R = 188;
+    function text(value,x,y,size=10,color=ink,weight='normal',options={}) {
+      doc.setFont('Poppins',weight); doc.setFontSize(size); doc.setTextColor(color); doc.text(value,x,y,options);
+    }
+    const hasInputer = meta.inputer, hasDoc = meta.doc;
+    const nameX = L + 10, nameW = hasInputer ? (hasDoc ? 47 : 62) : (hasDoc ? 92 : 108), inputX = nameX + nameW + 4, inputW = hasDoc ? 40 : 46, docX = 128;
+    text('CSpace',L,29,18,blue,'bold');
+    doc.addImage(logo,'PNG',145,18,43,43 * 654 / 2326,undefined,'FAST');
+    doc.setDrawColor('#e6ecf8'); doc.setLineWidth(.3); doc.line(L,40,R,40);
+    text('RIWAYAT UNDUHAN',L,52,8,muted);
+    text(meta.period,L,62,meta.period.length > 30 ? 14 : 19,ink,'bold');
+    text(rows.length + ' unduhan' + (meta.term ? '  |  ' + meta.term : ''),L,70,9,muted);
+    function head(y) {
+      text('No',L,y,8,muted); text('Nama nasabah',nameX,y,8,muted);
+      if (hasInputer) text('Inputer',inputX,y,8,muted);
+      if (hasDoc) text('Dokumen',hasInputer ? docX : inputX,y,8,muted);
+      text('Waktu',R,y,8,muted,'normal',{align:'right'});
+      doc.setDrawColor('#e6ecf8'); doc.line(L,y + 2.6,R,y + 2.6);
+      return y + 9;
+    }
+    let y = head(84);
+    rows.forEach((r,i)=>{
+      doc.setFont('Poppins','normal'); doc.setFontSize(9.5);
+      const lines = doc.splitTextToSize(String(r.customer_name || '-'),nameW).slice(0,2);
+      const inLines = hasInputer && r.inputer ? doc.splitTextToSize(String(r.inputer),inputW).slice(0,2) : ['-'];
+      const h = Math.max(lines.length,inLines.length) * 4.6 + 3.8;
+      if (y + h > 274) { doc.addPage(); y = head(24); }
+      text(String(i + 1),L,y,9,muted);
+      lines.forEach((line,k)=>text(line,nameX,y + k * 4.6,9.5));
+      if (hasInputer) inLines.forEach((line,k)=>text(line,inputX,y + k * 4.6,9,r.inputer ? ink : muted));
+      if (hasDoc) text(r.doc === 'rba' ? 'RBA' : 'KYC',hasInputer ? docX : inputX,y,9,r.doc === 'rba' ? blue : muted,r.doc === 'rba' ? 'bold' : 'normal');
+      text(historyTime(r.created_at),R,y,9,muted,'normal',{align:'right'});
+      doc.setDrawColor('#eef1f7'); doc.setLineWidth(.2); doc.line(L,y + h - 3.4,R,y + h - 3.4);
+      y += h + 1.6;
+    });
+    const pages = doc.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) { doc.setPage(p); text('CSpace',L,288,8,muted); text(p + ' / ' + pages,R,288,8,muted,'normal',{align:'right'}); }
+    return doc;
+  }
   $('kyc-history').addEventListener('click',()=>{
     const PAGE_SIZE = 10;
     Swal.fire({width:520,heightAuto:false,customClass:{popup:'guide-modal history-modal',htmlContainer:'guide-modal-body'},confirmButtonText:'Tutup',confirmButtonColor:'#365ee8',
-      html:'<div class="history-tools"><input class="text-input history-search" id="history-search" type="search" placeholder="Cari nama nasabah atau inputer" aria-label="Cari nama nasabah atau inputer" autocomplete="off" spellcheck="false" maxlength="80"></div><div id="history-body" aria-live="polite"><p class="history-empty">Memuat...</p></div><div class="history-pager" id="history-pager" hidden><button type="button" id="history-prev">Sebelumnya</button><span id="history-page"></span><button type="button" id="history-next">Berikutnya</button></div>',
+      html:'<div class="history-tools"><input class="text-input history-search" id="history-search" type="search" placeholder="Cari nama nasabah atau inputer" aria-label="Cari nama nasabah atau inputer" autocomplete="off" spellcheck="false" maxlength="80">'
+        + '<div class="history-dates"><label>Dari<input class="text-input" id="history-from" type="date"></label><label>Sampai<input class="text-input" id="history-to" type="date"></label></div>'
+        + '<div class="history-bar"><div class="history-chips" role="group" aria-label="Rentang cepat"><button type="button" data-range="today">Hari ini</button><button type="button" data-range="7">7 hari</button><button type="button" data-range="month">Bulan ini</button><button type="button" data-range="all">Semua</button></div><button class="history-pdf" id="history-pdf" type="button">Unduh PDF</button></div>'
+        + '<p class="history-note" id="history-note" role="status"></p></div>'
+        + '<div id="history-body" aria-live="polite"><p class="history-empty">Memuat...</p></div><div class="history-pager" id="history-pager" hidden><button type="button" id="history-prev">Sebelumnya</button><span id="history-page"></span><button type="button" id="history-next">Berikutnya</button></div>',
       didOpen:()=>{
-        const search = $('history-search'), body = $('history-body'), pager = $('history-pager');
+        const search = $('history-search'), body = $('history-body'), pager = $('history-pager'), fromInput = $('history-from'), toInput = $('history-to'), note = $('history-note');
         let page = 1, term = '', ticket = 0, timer = 0;
+        const filter = () => {
+          let from = fromInput.value, to = toInput.value;
+          if (from && to && from > to) [from,to] = [to,from];
+          return {term,from,to};
+        };
         async function load() {
           const mine = ++ticket;
           if (!supabaseReady()) { body.innerHTML = '<p class="history-empty">Supabase belum disambungkan.<br>Isi SUPABASE_URL dan SUPABASE_KEY di kode.</p>'; pager.hidden = true; return; }
           body.setAttribute('aria-busy','true');
           try {
-            const request = () => {
-              const like = encodeURIComponent('*' + term.replace(/[,()]/g,' ') + '*');
-              const filter = !term ? '' : historyHasInputer ? '&or=' + encodeURIComponent('(customer_name.ilike.*' + term.replace(/[,()]/g,' ') + '*,inputer.ilike.*' + term.replace(/[,()]/g,' ') + '*)') : '&customer_name=ilike.' + like;
-              return supabaseRequest(HISTORY_TABLE + '?select=customer_name,' + (historyHasInputer ? 'inputer,' : '') + 'created_at&order=created_at.desc&limit=' + (PAGE_SIZE + 1) + '&offset=' + ((page - 1) * PAGE_SIZE) + filter);
-            };
-            let response = await request();
-            if (!response.ok && response.status === 400 && historyHasInputer) { historyHasInputer = false; response = await request(); }
-            if (!response.ok) throw new Error(String(response.status));
-            const rows = await response.json();
+            const rows = await historyFetch(filter(),(page - 1) * PAGE_SIZE,PAGE_SIZE + 1);
             if (mine !== ticket) return;
             const more = rows.length > PAGE_SIZE, shown = rows.slice(0,PAGE_SIZE);
             if (!shown.length && page > 1) { page -= 1; return load(); }
+            const filtered = term || fromInput.value || toInput.value;
             body.innerHTML = shown.length
-              ? '<ul class="history-list">' + shown.map(r=>'<li><span class="history-name">' + xmlText(r.customer_name) + (r.inputer ? '<small class="history-inputer">Inputer: ' + xmlText(r.inputer) + '</small>' : '') + '</span><time class="history-time" datetime="' + xmlText(r.created_at) + '">' + historyTime(r.created_at) + '</time></li>').join('') + '</ul>'
-              : '<p class="history-empty">' + (term ? 'Tidak ada nama yang cocok' : 'Belum ada unduhan') + '</p>';
+              ? '<ul class="history-list">' + shown.map(r=>'<li><span class="history-name">' + xmlText(r.customer_name) + (historyHasDoc || r.inputer ? '<small class="history-inputer">' + (historyHasDoc ? '<b class="history-doc ' + (r.doc === 'rba' ? 'rba' : 'kyc') + '">' + (r.doc === 'rba' ? 'RBA' : 'KYC') + '</b>' : '') + (r.inputer ? xmlText(r.inputer) : '') + '</small>' : '') + '</span><time class="history-time" datetime="' + xmlText(r.created_at) + '">' + historyTime(r.created_at) + '</time></li>').join('') + '</ul>'
+              : '<p class="history-empty">' + (filtered ? 'Tidak ada data yang cocok' : 'Belum ada unduhan') + '</p>';
             pager.hidden = !shown.length || (page === 1 && !more);
             $('history-page').textContent = 'Halaman ' + page;
             $('history-prev').disabled = page === 1;
@@ -1060,12 +1160,42 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
             pager.hidden = true;
           } finally { if (mine === ticket) body.removeAttribute('aria-busy'); }
         }
+        function refresh() { page = 1; note.textContent = ''; load(); }
         search.addEventListener('input',()=>{
           clearTimeout(timer);
-          timer = setTimeout(()=>{ const next = search.value.replace(/[*%]/g,'').replace(/\s+/g,' ').trim(); if (next === term) return; term = next; page = 1; load(); },300);
+          timer = setTimeout(()=>{ const next = search.value.replace(/[*%]/g,'').replace(/\s+/g,' ').trim(); if (next === term) return; term = next; refresh(); },300);
         });
+        fromInput.addEventListener('change',refresh);
+        toInput.addEventListener('change',refresh);
+        document.querySelectorAll('.history-chips button').forEach(b=>b.addEventListener('click',()=>{
+          const t = today(), kind = b.dataset.range;
+          fromInput.value = kind === 'all' ? '' : kind === 'today' ? t : kind === '7' ? dateAfter(t,-6) : t.slice(0,8) + '01';
+          toInput.value = kind === 'all' ? '' : t;
+          refresh();
+        }));
         $('history-prev').addEventListener('click',()=>{ if (page > 1) { page -= 1; load(); } });
         $('history-next').addEventListener('click',()=>{ page += 1; load(); });
+        $('history-pdf').addEventListener('click',async()=>{
+          const button = $('history-pdf');
+          if (!supabaseReady()) { note.textContent = 'Supabase belum disambungkan'; return; }
+          button.disabled = true; button.textContent = 'Membuat PDF'; note.textContent = '';
+          try {
+            const f = filter(), all = [], STEP = 1000;
+            for (let offset = 0; offset < 5000; offset += STEP) {
+              const rows = await historyFetch(f,offset,STEP);
+              all.push(...rows);
+              if (rows.length < STEP) break;
+            }
+            if (!all.length) { note.textContent = 'Tidak ada data pada periode ini'; return; }
+            const fonts = JSON.parse($('pdf-fonts').textContent);
+            const logo = document.querySelector('.bank-logo').src;
+            const doc = buildHistoryPdf(all,{period:historyPeriod(f.from,f.to),term:f.term,inputer:historyHasInputer,doc:historyHasDoc},logo,fonts);
+            await doc.save('CSpace-Riwayat' + (f.from || f.to ? '-' + (f.from || f.to) + (f.from && f.to && f.from !== f.to ? '_' + f.to : '') : '') + '.pdf',{returnPromise:true});
+            note.textContent = all.length + ' data masuk ke PDF';
+          } catch (_) {
+            note.textContent = 'PDF belum berhasil dibuat, coba lagi';
+          } finally { button.disabled = false; button.textContent = 'Unduh PDF'; }
+        });
         load();
       }});
   });
@@ -1187,7 +1317,7 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
       link.click();
       link.remove();
       setTimeout(()=>URL.revokeObjectURL(url),4000);
-      const saved = await saveKycHistory(d.type,d.customer,d.cs);
+      const saved = await saveHistory('kyc',d.type,d.customer,d.cs);
       if (saved === 'fail') notify('Excel KYC terunduh, tetapi riwayat belum tersimpan','warning');
       else notify('Excel KYC berhasil diunduh','success');
     } catch (_) {
