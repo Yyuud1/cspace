@@ -191,7 +191,16 @@ input[type=date]::-webkit-calendar-picker-indicator{opacity:.38;cursor:pointer}
 .history-list li:last-child{border-bottom:0}
 .history-name{flex:1 1 180px;min-width:0;font-size:14px;font-weight:500;overflow-wrap:anywhere}
 .history-time{font-size:13px;color:var(--muted);white-space:nowrap}
+.history-inputer{display:block;margin-top:3px;font-size:12px;font-weight:400;color:#6a7488}
 .history-empty{margin:18px 0;font-size:14px;color:var(--muted);text-align:center;line-height:1.7}
+.history-tools{position:sticky;top:0;background:#fff;padding:0 0 12px;z-index:1}
+.history-search{width:100%;height:44px;font-size:14px}
+.history-pager{position:sticky;bottom:0;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap;padding:14px 0 2px;border-top:1px solid var(--line);margin-top:6px;font-size:13px;color:var(--muted)}
+.history-pager[hidden]{display:none}
+.history-pager button{height:40px;flex:none;padding:0 12px;border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;transition:border-color .2s,background .2s}
+.history-pager button:hover:not(:disabled){border-color:var(--blue);background:var(--tint)}
+.history-pager button:disabled{color:#a8b1c4;cursor:default}
+.history-pager button:focus-visible,.history-search:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .history-modal{max-width:calc(100vw - 28px)}
 @media(max-width:440px){.header-actions{gap:14px}.service-link,.guide-button{font-size:13px}.guide-button svg{width:14px;height:14px}}
 @media(max-width:360px){.header-actions{gap:9px}.service-link,.guide-button{font-size:12px}.guide-button{gap:4px}}
@@ -228,6 +237,51 @@ input[type=date]::-webkit-calendar-picker-indicator{opacity:.38;cursor:pointer}
 @media(max-width:700px){.topbar{display:flex;height:80px;min-height:0;padding:0}.header-right{display:flex}.bank-logo{width:110px}.deposito-page{min-height:calc(100svh - 148px)}}
 @media(max-width:600px){.topbar{display:flex;height:76px;min-height:0;padding:0}.header-right{display:flex}.deposito-page{min-height:calc(100svh - 140px)}.fab{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}.fab .fab-toggle{width:56px;height:56px}.fab-menu{bottom:70px}.fab .fab-item{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.fab .fab-toggle{animation:none}.fab-bars{transition-duration:.01ms}}
+
+.game-layout{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:white;display:grid;grid-template-columns:1.14fr 1fr;box-shadow:0 16px 48px -32px #314c8c25}
+.game-stage{padding:28px 34px 30px;display:flex;flex-direction:column;min-width:0;position:relative}
+.game-side{background:var(--tint);border-left:1px solid #e9eefb;padding:31px 33px 28px;display:flex;flex-direction:column;min-width:0}
+.game-hud{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}
+.game-hearts{display:flex;gap:6px}
+.game-heart{width:22px;height:22px;color:#e5484d;transition:transform .3s var(--ease),opacity .3s,color .3s}
+.game-heart.lost{color:#cfd6e4;transform:scale(.8)}
+.game-score{font-size:13px;color:var(--muted)}.game-score b{font-size:20px;font-weight:500;color:var(--ink);margin-left:6px;letter-spacing:-.5px}
+.game-queue{display:flex;align-items:center;gap:8px;min-height:44px;margin-bottom:16px;color:var(--muted);font-size:13px}
+.game-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff;flex:none}
+.game-dot.next{opacity:.55;transform:scale(.88)}
+.game-customer{border:1px solid var(--line);border-radius:16px;padding:20px 22px 22px;background:var(--paper);min-height:176px;display:flex;flex-direction:column;gap:14px}
+.game-customer.pop{animation:game-pop .35s var(--ease)}
+.game-customer.shake{animation:game-shake .35s}
+.game-who{display:flex;align-items:center;gap:12px}
+.game-who .game-dot{width:42px;height:42px;font-size:14px}
+.game-name{font-size:15px;font-weight:500}.game-mood{font-size:12px;color:var(--muted)}
+.game-ask{font-size:17px;line-height:1.55;letter-spacing:-.2px;margin:0}
+.game-patience{height:6px;border-radius:99px;background:#e6ebf6;overflow:hidden;margin-top:auto}
+.game-patience i{display:block;height:100%;width:100%;background:var(--blue);border-radius:99px;transform-origin:left;transition:background .2s}
+.game-patience.low i{background:#e5484d}
+.game-desks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.game-desk{min-height:56px;border:1px solid var(--line);background:white;border-radius:12px;font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:border-color .2s,background .2s,transform .15s}
+.game-desk small{font-size:11px;color:var(--muted);font-weight:400}
+.game-desk:hover{border-color:var(--blue);background:var(--tint)}.game-desk:active{transform:scale(.97)}
+.game-desk:focus-visible,.game-start:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.game-desk:disabled{opacity:.5;cursor:default}
+.game-cover{position:absolute;inset:0;background:rgba(255,255,255,.94);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:14px;padding:34px;z-index:2}
+.game-cover[hidden]{display:none}
+.game-cover h2{margin:0;font-size:clamp(28px,4vw,40px);letter-spacing:-1.4px;font-weight:500;line-height:1.15}
+.game-cover p{margin:0;color:var(--muted);font-size:15px;line-height:1.7;max-width:420px}
+.game-start{height:48px;border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:9px;padding:0 26px;font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s}
+.game-start:hover{background:var(--blue-deep)}
+.game-side h2{font-size:17px;font-weight:500;letter-spacing:-.3px;margin:0 0 22px}
+.game-stat{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #e3e9f7;font-size:14px;color:#5b6577}
+.game-stat b{font-weight:500;color:var(--ink)}
+.game-rank{margin-top:22px;font-size:13px;color:#5b6577;line-height:1.8}
+.game-rank b{display:block;font-size:20px;font-weight:500;letter-spacing:-.5px;color:var(--blue);margin-top:4px}
+.game-tip{margin-top:auto;padding-top:22px;font-size:12.5px;color:#6a7488;line-height:1.7}
+@keyframes game-pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes game-shake{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@media(max-width:820px){.game-layout{grid-template-columns:1fr}.game-side{border-left:0;border-top:1px solid #e9eefb}}
+@media(max-width:600px){.game-stage{padding:22px 18px 24px}.game-side{padding:24px 20px}.game-desks{gap:8px}.game-desk{font-size:13px}.game-ask{font-size:16px}.game-cover{padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){.game-customer.pop,.game-customer.shake{animation:none}}
 </style>
 <!--
 Embedded Poppins font license
@@ -415,7 +469,7 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
 <div class="field"><label class="field-label" for="kyc-address">Alamat</label><input class="text-input" id="kyc-address" type="text" spellcheck="false" maxlength="120"></div>
 <div class="field-row"><div class="field"><label class="field-label" for="kyc-phone">No. telepon / HP</label><input class="text-input" id="kyc-phone" type="text" spellcheck="false" inputmode="tel" maxlength="30"></div><div class="field"><label class="field-label" for="kyc-job">Pekerjaan / jabatan</label><input class="text-input" id="kyc-job" type="text" spellcheck="false" maxlength="60"></div></div>
 <div class="field"><label class="field-label" for="kyc-business">Bidang usaha</label><input class="text-input" id="kyc-business" type="text" spellcheck="false" maxlength="60"></div><div class="field"><label class="field-label" for="kyc-company-address">Alamat perusahaan</label><input class="text-input" id="kyc-company-address" type="text" spellcheck="false" maxlength="120"></div><div class="field"><label class="field-label" for="kyc-company-phone">No. telepon perusahaan <span class="optional">opsional</span></label><input class="text-input" id="kyc-company-phone" type="text" spellcheck="false" inputmode="tel" maxlength="30"></div>
-<div class="field"><label class="field-label" for="kyc-cs">Pelaksana CS</label><select id="kyc-cs"><option value="">Pilih pelaksana CS</option><option value="AISYAH SHERLY FITRIANI">AISYAH SHERLY FITRIANI</option><option value="ANNISYA MAHARANI">ANNISYA MAHARANI</option><option value="ANISA ANGELITA">ANISA ANGELITA</option><option value="JUWITA">JUWITA</option><option value="HAPPY DWI HANDAYANI">HAPPY DWI HANDAYANI</option><option value="PUTRI AYU VARAH WIJAYA">PUTRI AYU VARAH WIJAYA</option><option value="DINI RANTIWI">DINI RANTIWI</option><option value="M. ALI YAPI">M. ALI YAPI</option></select></div>
+<div class="field"><label class="field-label" for="kyc-cs">Pelaksana CS</label><select id="kyc-cs"><option value="">Pilih pelaksana CS</option><option value="AISYAH SHERLY FITRIANI">AISYAH SHERLY FITRIANI</option><option value="ANNISYA MAHARANI">ANNISYA MAHARANI</option><option value="ANISA ANGELITA">ANISA ANGELITA</option><option value="JUWITA">JUWITA</option><option value="HAPPY DWI HANDAYANI">HAPPY DWI HANDAYANI</option><option value="PUTRI AYU VARAH WIJAYA">PUTRI AYU VARAH WIJAYA</option><option value="DINI RANTIWI">DINI RANTIWI</option><option value="M. ALI YAPI">M. ALI YAPI</option><option value="REDDO SAPUTRA">REDDO SAPUTRA</option></select></div>
 <div class="field"><label class="field-label" for="kyc-know">Mengetahui <span class="optional">opsional</span></label><select id="kyc-know"><option value="">Head CS (bawaan template)</option><option value="DEASY ANGGRENI|PEMIMPIN CABANG">Deasy Anggreni, Pemimpin Cabang</option><option value="SITI NURUL KAMARIL|WAKIL PEMIMPIN CABANG">Siti Nurul Kamaril, Wakil Pemimpin Cabang</option><option value="HARU MARLINA|PEMIMPIN KCP SINGKUT">Haru Marlina, Pemimpin KCP Singkut</option><option value="HENDRA KURNIAWAN|PEMIMPIN KCP MANDIANGIN">Hendra Kurniawan, Pemimpin KCP Mandiangin</option><option value="HANDIAN TRIWALDI|PEMIMPIN KCP PAUH">Handian Triwaldi, Pemimpin KCP Pauh</option><option value="LINE MARIA ULPA|HEAD OPERASIONAL">Line Maria Ulpa, Head Operasional</option><option value="SEPTIAN JOHANIS PRATAMA|HEAD OPERASIONAL">Septian Johanis Pratama, Head Operasional</option><option value="SISKA PUSPASARI|HEAD OPERASIONAL">Siska Puspasari, Head Operasional</option></select></div>
 <p class="form-section">RBA</p>
 <div class="field"><label class="field-label" for="rba-unit">Unit kerja</label><select id="rba-unit"><option value="">Pilih unit kerja</option><option value="KC Sarolangun">KC Sarolangun</option><option value="KCP Singkut">KCP Singkut</option><option value="KCP Mandiangin">KCP Mandiangin</option><option value="KCP Pauh">KCP Pauh</option></select></div>
@@ -447,10 +501,30 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
 <a class="deposito-back" href="#double-untung">Kembali ke Double Untung</a>
 </div>
 </section>
+<section class="service-view" id="game-page" aria-labelledby="game-title" hidden>
+<section class="intro" aria-labelledby="game-title"><div><h1 id="game-title">Antrian Nasabah</h1><p class="intro-copy"></p></div><span class="program-end">Mini game sambil menunggu antrean sepi</span></section>
+<section class="game-layout" aria-label="Mini game Antrian Nasabah">
+<div class="game-stage">
+<div class="game-hud"><div class="game-hearts" id="game-hearts" role="img" aria-label="Nyawa tersisa 3"></div><div class="game-score">Skor<b id="game-score">0</b></div></div>
+<div class="game-queue" id="game-queue" aria-hidden="true"></div>
+<div class="game-customer" id="game-customer" aria-live="polite"><div class="game-who"><span class="game-dot" id="game-avatar">AB</span><div><div class="game-name" id="game-name">Nasabah</div><div class="game-mood" id="game-mood">Menunggu giliran</div></div></div><p class="game-ask" id="game-ask">Siap melayani?</p><div class="game-patience" id="game-patience"><i></i></div></div>
+<div class="game-desks" id="game-desks" role="group" aria-label="Pilih loket"><button class="game-desk" type="button" data-desk="tabungan" disabled>Tabungan<small>tombol 1</small></button><button class="game-desk" type="button" data-desk="deposito" disabled>Deposito<small>tombol 2</small></button><button class="game-desk" type="button" data-desk="kyc" disabled>KYC<small>tombol 3</small></button></div>
+<div class="game-cover" id="game-cover"><h2 id="game-cover-title">Siap jadi CS tercepat?</h2><p id="game-cover-text">Nasabah datang satu per satu dengan permintaan yang aneh-aneh. Arahkan ke loket yang tepat sebelum kesabarannya habis. Tiga kali salah atau telat, loket tutup.</p><button class="game-start" id="game-start" type="button">Buka loket</button></div>
+</div>
+<aside class="game-side" aria-label="Statistik">
+<h2>Shift hari ini</h2>
+<div class="game-stat"><span>Nasabah terlayani</span><b id="game-served">0</b></div>
+<div class="game-stat"><span>Kombo terbaik</span><b id="game-combo">0</b></div>
+<div class="game-stat"><span>Skor tertinggi</span><b id="game-best">0</b></div>
+<div class="game-rank">Gelar kamu<b id="game-rank">Magang Loket</b></div>
+<p class="game-tip">Tabungan untuk setor, tarik, dan buku. Deposito untuk menyimpan dana berjangka. KYC untuk data diri, KTP, dan nomor HP. Di komputer, tekan 1, 2, atau 3.</p>
+</aside>
+</section>
+</section>
 </main>
 <footer class="footer reveal"><span>cspace by ydagrh</span></footer>
 </div>
-<div class="fab" id="fab" inert><div class="fab-backdrop" id="fab-backdrop"></div><button class="fab-toggle" id="fab-toggle" type="button" aria-expanded="false" aria-controls="fab-menu" aria-label="Buka menu"><span class="fab-bars" aria-hidden="true"></span></button><nav class="fab-menu" id="fab-menu" aria-label="Layanan"><a class="service-link fab-item active-service" href="#double-untung" data-service="double-untung" aria-current="page"><span>Double Untung</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span></a><a class="service-link fab-item" href="#rba" data-service="rba"><span>RBA &amp; KYC</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span></a><a class="service-link fab-item" href="#deposito" data-service="deposito"><span>Deposito</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg></span></a><button class="guide-button fab-item" id="guide" type="button"><span>Panduan</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></span></button><button class="guide-button history-button fab-item" id="kyc-history" type="button" aria-label="Riwayat unduhan KYC" hidden><span>Riwayat</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span></button></nav></div>
+<div class="fab" id="fab" inert><div class="fab-backdrop" id="fab-backdrop"></div><button class="fab-toggle" id="fab-toggle" type="button" aria-expanded="false" aria-controls="fab-menu" aria-label="Buka menu"><span class="fab-bars" aria-hidden="true"></span></button><nav class="fab-menu" id="fab-menu" aria-label="Layanan"><a class="service-link fab-item active-service" href="#double-untung" data-service="double-untung" aria-current="page"><span>Double Untung</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span></a><a class="service-link fab-item" href="#rba" data-service="rba"><span>RBA &amp; KYC</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span></a><a class="service-link fab-item" href="#deposito" data-service="deposito"><span>Deposito</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg></span></a><a class="service-link fab-item" href="#game" data-service="game"><span>Mini Game</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12a4 4 0 0 1 3.9 4.9l-.9 4a2.5 2.5 0 0 1-4.3 1.1L15 16.5H9l-1.7 1.5A2.5 2.5 0 0 1 3 16.9l-.9-4A4 4 0 0 1 6 8z"/><path d="M8 10.5v3M6.5 12h3M15.5 11.5h.01M17.5 13.5h.01"/></svg></span></a><button class="guide-button fab-item" id="guide" type="button"><span>Panduan</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></span></button><button class="guide-button history-button fab-item" id="kyc-history" type="button" aria-label="Riwayat unduhan KYC" hidden><span>Riwayat</span><span class="fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span></button></nav></div>
 <noscript><style>.loader{display:none}.reveal{opacity:1;transform:none}.workspace{display:none}</style><p style="text-align:center;padding:20px">Aktifkan JavaScript untuk menggunakan kalkulator</p></noscript>
 <script>/*!
 * sweetalert2 v11.26.3
@@ -929,10 +1003,18 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
     if (SUPABASE_KEY.startsWith('eyJ')) headers.Authorization = 'Bearer ' + SUPABASE_KEY;
     return fetch(SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/' + path,{...options,headers});
   }
-  async function saveKycHistory(type, name) {
+  // Kolom "inputer" (pelaksana CS) di tabel kyc_history. Jika kolomnya belum ada di Supabase,
+  // simpan dan baca riwayat tetap jalan tanpa kolom itu (lihat catatan SQL di panduan).
+  let historyHasInputer = true;
+  async function saveKycHistory(type, name, inputer) {
     if (!supabaseReady()) return 'skip';
     try {
-      const response = await supabaseRequest(HISTORY_TABLE,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({type,customer_name:name})});
+      const post = payload => supabaseRequest(HISTORY_TABLE,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)});
+      let response = await post(historyHasInputer ? {type,customer_name:name,inputer} : {type,customer_name:name});
+      if (!response.ok && response.status === 400 && historyHasInputer) {
+        historyHasInputer = false;
+        response = await post({type,customer_name:name});
+      }
       return response.ok ? 'ok' : 'fail';
     } catch (_) { return 'fail'; }
   }
@@ -940,21 +1022,51 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
     const parts = Object.fromEntries(new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(value)).map(p=>[p.type,p.value]));
     return parts.day + ' ' + parts.month + ' ' + parts.year + ', ' + parts.hour + ':' + parts.minute;
   }
-  $('kyc-history').addEventListener('click',async()=>{
-    Swal.fire({width:520,heightAuto:false,customClass:{popup:'guide-modal history-modal',htmlContainer:'guide-modal-body'},confirmButtonText:'Tutup',confirmButtonColor:'#365ee8',html:'<p class="history-empty">Memuat...</p>',
-      didOpen:async()=>{
-        const box = Swal.getHtmlContainer();
-        if (!supabaseReady()) { box.innerHTML = '<p class="history-empty">Supabase belum disambungkan.<br>Isi SUPABASE_URL dan SUPABASE_KEY di kode.</p>'; return; }
-        try {
-          const response = await supabaseRequest(HISTORY_TABLE + '?select=customer_name,created_at&order=created_at.desc&limit=200');
-          if (!response.ok) throw new Error(String(response.status));
-          const rows = await response.json();
-          box.innerHTML = rows.length
-            ? '<ul class="history-list">' + rows.map(r=>'<li><span class="history-name">' + xmlText(r.customer_name) + '</span><time class="history-time" datetime="' + xmlText(r.created_at) + '">' + historyTime(r.created_at) + '</time></li>').join('') + '</ul>'
-            : '<p class="history-empty">Belum ada unduhan</p>';
-        } catch (_) {
-          box.innerHTML = '<p class="history-empty">Riwayat belum bisa dimuat.<br>Periksa koneksi dan pengaturan Supabase.</p>';
+  $('kyc-history').addEventListener('click',()=>{
+    const PAGE_SIZE = 10;
+    Swal.fire({width:520,heightAuto:false,customClass:{popup:'guide-modal history-modal',htmlContainer:'guide-modal-body'},confirmButtonText:'Tutup',confirmButtonColor:'#365ee8',
+      html:'<div class="history-tools"><input class="text-input history-search" id="history-search" type="search" placeholder="Cari nama nasabah atau inputer" aria-label="Cari nama nasabah atau inputer" autocomplete="off" spellcheck="false" maxlength="80"></div><div id="history-body" aria-live="polite"><p class="history-empty">Memuat...</p></div><div class="history-pager" id="history-pager" hidden><button type="button" id="history-prev">Sebelumnya</button><span id="history-page"></span><button type="button" id="history-next">Berikutnya</button></div>',
+      didOpen:()=>{
+        const search = $('history-search'), body = $('history-body'), pager = $('history-pager');
+        let page = 1, term = '', ticket = 0, timer = 0;
+        async function load() {
+          const mine = ++ticket;
+          if (!supabaseReady()) { body.innerHTML = '<p class="history-empty">Supabase belum disambungkan.<br>Isi SUPABASE_URL dan SUPABASE_KEY di kode.</p>'; pager.hidden = true; return; }
+          body.setAttribute('aria-busy','true');
+          try {
+            const request = () => {
+              const like = encodeURIComponent('*' + term.replace(/[,()]/g,' ') + '*');
+              const filter = !term ? '' : historyHasInputer ? '&or=' + encodeURIComponent('(customer_name.ilike.*' + term.replace(/[,()]/g,' ') + '*,inputer.ilike.*' + term.replace(/[,()]/g,' ') + '*)') : '&customer_name=ilike.' + like;
+              return supabaseRequest(HISTORY_TABLE + '?select=customer_name,' + (historyHasInputer ? 'inputer,' : '') + 'created_at&order=created_at.desc&limit=' + (PAGE_SIZE + 1) + '&offset=' + ((page - 1) * PAGE_SIZE) + filter);
+            };
+            let response = await request();
+            if (!response.ok && response.status === 400 && historyHasInputer) { historyHasInputer = false; response = await request(); }
+            if (!response.ok) throw new Error(String(response.status));
+            const rows = await response.json();
+            if (mine !== ticket) return;
+            const more = rows.length > PAGE_SIZE, shown = rows.slice(0,PAGE_SIZE);
+            if (!shown.length && page > 1) { page -= 1; return load(); }
+            body.innerHTML = shown.length
+              ? '<ul class="history-list">' + shown.map(r=>'<li><span class="history-name">' + xmlText(r.customer_name) + (r.inputer ? '<small class="history-inputer">Inputer: ' + xmlText(r.inputer) + '</small>' : '') + '</span><time class="history-time" datetime="' + xmlText(r.created_at) + '">' + historyTime(r.created_at) + '</time></li>').join('') + '</ul>'
+              : '<p class="history-empty">' + (term ? 'Tidak ada nama yang cocok' : 'Belum ada unduhan') + '</p>';
+            pager.hidden = !shown.length || (page === 1 && !more);
+            $('history-page').textContent = 'Halaman ' + page;
+            $('history-prev').disabled = page === 1;
+            $('history-next').disabled = !more;
+            body.scrollTop = 0;
+          } catch (_) {
+            if (mine !== ticket) return;
+            body.innerHTML = '<p class="history-empty">Riwayat belum bisa dimuat.<br>Periksa koneksi dan pengaturan Supabase.</p>';
+            pager.hidden = true;
+          } finally { if (mine === ticket) body.removeAttribute('aria-busy'); }
         }
+        search.addEventListener('input',()=>{
+          clearTimeout(timer);
+          timer = setTimeout(()=>{ const next = search.value.replace(/[*%]/g,'').replace(/\s+/g,' ').trim(); if (next === term) return; term = next; page = 1; load(); },300);
+        });
+        $('history-prev').addEventListener('click',()=>{ if (page > 1) { page -= 1; load(); } });
+        $('history-next').addEventListener('click',()=>{ page += 1; load(); });
+        load();
       }});
   });
 
@@ -1075,7 +1187,7 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
       link.click();
       link.remove();
       setTimeout(()=>URL.revokeObjectURL(url),4000);
-      const saved = await saveKycHistory(d.type,d.customer);
+      const saved = await saveKycHistory(d.type,d.customer,d.cs);
       if (saved === 'fail') notify('Excel KYC terunduh, tetapi riwayat belum tersimpan','warning');
       else notify('Excel KYC berhasil diunduh','success');
     } catch (_) {
@@ -1108,14 +1220,129 @@ Released under the GUST Font License, see http://tug.org/fonts/licenses/GUST-FON
     window.addEventListener('hashchange', () => setOpen(false));
   })();
 
+
+  // ---- Mini game: Antrian Nasabah ----
+  const Game = (function () {
+    const NAMES = ['Pak Budi','Bu Ani','Mas Dimas','Kak Sinta','Pak Haji Rahman','Bu Lastri','Dek Fajar','Bang Joko','Mbak Rina','Pak Tono','Bu Mawar','Kak Bagas'];
+    const COLORS = ['#365ee8','#e5484d','#0e9f6e','#d97706','#7c3aed','#0891b2','#db2777','#4b5563'];
+    const ASKS = {
+      tabungan: ['Mau setor Rp50 ribu, tapi minta dilayani seperti sultan.','Buku tabungan saya hilang. Katanya sih dimakan kucing.','Cuma mau cek saldo. Katanya sih biar tenang tidur malam ini.','Mau tarik uang buat bayar arisan, doakan cukup ya.','Mau buka rekening untuk anak. Anaknya ikut antre, lagi tidur.','Saldo kok berkurang? Ah, ternyata saya habis belanja online.'],
+      deposito: ['Mau simpan uang THR biar tidak habis dipakai jajan.','Uang ini mau dikunci supaya tidak dipinjam saudara.','Mau pasang deposito, tapi tolong jangan kasih tahu istri dulu.','Pengen uang saya tidur nyenyak dan bangun lebih gemuk.','Mau perpanjang deposito. Katanya sih lebih baik daripada ditaruh di bawah kasur.','Ada dana nganggur, mau diistirahatkan beberapa bulan.'],
+      kyc: ['KTP saya sudah ganti, tapi fotonya masih yang muda banget.','Mau update data. Nomor HP ganti lagi, entah yang keberapa.','Alamat pindah tiga kali, tolong dicatat yang terbaru.','Disuruh isi formulir data diri. Pulpennya pinjam dulu ya.','Lupa NIK, tapi hafal tanggal lahir sendiri. Boleh?','Katanya data nasabah harus diperbarui. Saya baru tahu tadi.']
+    };
+    const MOODS = ['Santai','Agak buru-buru','Sedang tidak sabar','Hampir menyerah'];
+    const RANKS = [[0,'Magang Loket'],[60,'CS Pemula'],[160,'CS Handal'],[320,'CS Sabar Sejagat'],[560,'Legenda Loket']];
+    const el = id => document.getElementById(id);
+    const BEST_KEY = 'cspace-game-best';
+    let running = false, raf = 0, lives = 3, score = 0, served = 0, combo = 0, bestCombo = 0, current = null, queue = [], started = 0, patience = 6000;
+    function readBest() { try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; } }
+    function writeBest(v) { try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) {} }
+    function rankFor(v) { let r = RANKS[0][1]; for (const [min, name] of RANKS) if (v >= min) r = name; return r; }
+    function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+    function makeCustomer() {
+      const type = pick(['tabungan','deposito','kyc']);
+      const name = pick(NAMES);
+      const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
+      return { type, name, initials, color: pick(COLORS), ask: pick(ASKS[type]) };
+    }
+    function hearts() {
+      const svg = '<svg class="game-heart%c" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6 5c2 0 3.3 1 4 2.2h0C10.7 6 12 5 14 5c3.3 0 5.1 3.400 3.600 6.800C19.500 16.400 12 21 12 21z"/></svg>';
+      el('game-hearts').innerHTML = [0,1,2].map(i => svg.replace('%c', i >= lives ? ' lost' : '')).join('');
+      el('game-hearts').setAttribute('aria-label', 'Nyawa tersisa ' + lives);
+    }
+    function renderQueue() {
+      const box = el('game-queue');
+      box.innerHTML = '';
+      queue.slice(0, 4).forEach(c => { const d = document.createElement('span'); d.className = 'game-dot next'; d.style.background = c.color; d.textContent = c.initials; box.appendChild(d); });
+      if (queue.length) { const t = document.createElement('span'); t.textContent = 'antre berikutnya'; box.appendChild(t); }
+    }
+    function renderStats() {
+      el('game-score').textContent = score;
+      el('game-served').textContent = served;
+      el('game-combo').textContent = bestCombo;
+      el('game-best').textContent = Math.max(readBest(), score);
+      el('game-rank').textContent = rankFor(score);
+    }
+    function nextCustomer() {
+      current = queue.shift() || makeCustomer();
+      while (queue.length < 4) queue.push(makeCustomer());
+      patience = Math.max(2800, 6200 - served * 130);
+      started = performance.now();
+      const card = el('game-customer');
+      el('game-avatar').style.background = current.color;
+      el('game-avatar').textContent = current.initials;
+      el('game-name').textContent = current.name;
+      el('game-ask').textContent = current.ask;
+      el('game-mood').textContent = MOODS[0];
+      card.classList.remove('pop','shake'); void card.offsetWidth; card.classList.add('pop');
+      renderQueue();
+    }
+    function tick(now) {
+      if (!running) return;
+      const left = Math.max(0, 1 - (now - started) / patience);
+      const bar = el('game-patience');
+      bar.firstElementChild.style.transform = 'scaleX(' + left + ')';
+      bar.classList.toggle('low', left < .35);
+      el('game-mood').textContent = MOODS[left > .7 ? 0 : left > .4 ? 1 : left > .2 ? 2 : 3];
+      if (left <= 0) { miss(); if (running) nextCustomer(); }
+      raf = requestAnimationFrame(tick);
+    }
+    function miss() {
+      combo = 0; lives -= 1; hearts();
+      const card = el('game-customer'); card.classList.remove('pop','shake'); void card.offsetWidth; card.classList.add('shake');
+      if (lives <= 0) end();
+    }
+    function choose(type) {
+      if (!running || !current) return;
+      if (type === current.type) {
+        combo += 1; bestCombo = Math.max(bestCombo, combo); served += 1;
+        score += 10 + Math.min(combo - 1, 10) * 2;
+        if (combo % 8 === 0 && lives < 3) { lives += 1; hearts(); }
+        renderStats(); nextCustomer();
+      } else { miss(); renderStats(); }
+    }
+    function setDesks(on) { document.querySelectorAll('#game-desks .game-desk').forEach(b => { b.disabled = !on; }); }
+    function start() {
+      lives = 3; score = 0; served = 0; combo = 0; bestCombo = 0; queue = []; running = true;
+      for (let i = 0; i < 4; i++) queue.push(makeCustomer());
+      hearts(); renderStats(); setDesks(true); el('game-cover').hidden = true;
+      nextCustomer(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+      el('game-desks').firstElementChild.focus({preventScroll:true});
+    }
+    function end() {
+      running = false; cancelAnimationFrame(raf); setDesks(false);
+      const prev = readBest(); const record = score > prev;
+      if (record) writeBest(score);
+      renderStats();
+      el('game-cover-title').textContent = record && score > 0 ? 'Rekor baru: ' + score : 'Loket tutup, skor ' + score;
+      el('game-cover-text').textContent = 'Gelar kamu: ' + rankFor(score) + '. ' + served + ' nasabah terlayani, kombo terbaik ' + bestCombo + '.';
+      el('game-start').textContent = 'Buka loket lagi';
+      el('game-cover').hidden = false;
+      el('game-start').focus({preventScroll:true});
+    }
+    function stop() { if (running) { running = false; cancelAnimationFrame(raf); setDesks(false); el('game-cover-title').textContent = 'Shift dijeda'; el('game-cover-text').textContent = 'Kamu keluar dari halaman ini, jadi permainan dihentikan.'; el('game-start').textContent = 'Mulai lagi'; el('game-cover').hidden = false; } }
+    document.querySelectorAll('#game-desks .game-desk').forEach(b => b.addEventListener('click', () => choose(b.dataset.desk)));
+    el('game-start').addEventListener('click', start);
+    document.addEventListener('keydown', e => {
+      if (el('game-page').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = { '1':'tabungan','2':'deposito','3':'kyc' }[e.key];
+      if (k && running) { e.preventDefault(); choose(k); }
+    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
+    hearts(); renderStats();
+    return { stop };
+  })();
+
   initialize();
 
   function showService() {
     const hash = window.location.hash;
-    const active = hash === '#deposito' ? 'deposito' : hash === '#rba' ? 'rba' : 'double-untung';
+    const active = hash === '#deposito' ? 'deposito' : hash === '#rba' ? 'rba' : hash === '#game' ? 'game' : 'double-untung';
     $('double-untung-page').hidden = active !== 'double-untung';
     $('rba-page').hidden = active !== 'rba';
     $('deposito-page').hidden = active !== 'deposito';
+    $('game-page').hidden = active !== 'game';
+    if (active !== 'game') Game.stop();
     $('guide').hidden = active !== 'double-untung';
     $('kyc-history').hidden = active !== 'rba';
     for (const link of document.querySelectorAll('[data-service]')) {
